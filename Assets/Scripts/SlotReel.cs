@@ -7,34 +7,44 @@ public class SlotReel : MonoBehaviour
     private float symbolHeight = 1.6f;
 
     [Tooltip("The symbol index to stop on")]
-    //[SerializeField] private int targetSymbol;
-    public int targetSymbol { get; private set; }
-
+    //public int targetSymbol { get; private set; }
+    public int targetSymbol;
 
     [Tooltip("The time for which the reel spins before checking the symbol to stop at")]
-    public float spinTime = 3f;
-    float stopTime;
+    public float spinTime = 3f;                    //The time at which the reel should stop spinning 
+    float stopTime;                                //works as a manual timer to check when the reel should stop spinning
 
     private bool spinning = false;              //Checks whether the reel have to spin or not
 
-    public event System.Action OnStopped;
+    public event System.Action OnStopped;         // tells the master slot machine that the spinning has stopped and the button can be pressed again
 
+    private float totalDistanceMoved = 0f;
+    private float[] baseYPositions; 
+
+    void Awake()
+    {
+        baseYPositions = new float[transform.childCount];
+        int i = 0;
+        foreach (Transform symbol in transform)
+            baseYPositions[i++] = symbol.localPosition.y;
+    }
     void Update()
     {
-        if (!spinning)
-            return;
+        if (!spinning) return;
 
+        totalDistanceMoved = Mathf.Repeat(totalDistanceMoved + speed * Time.deltaTime, symbolHeight * 4);
+
+        int i = 0;
         foreach (Transform symbol in transform)
         {
-            symbol.localPosition += Vector3.down * speed * Time.deltaTime;
-
-            if (symbol.localPosition.y < -symbolHeight * 2)                                   //moves the symbol back to the top of the reel when it goes below the reel
-            {
-                symbol.localPosition += Vector3.up * symbolHeight * 4;
-            }
+            float wrappedY = Mathf.Repeat(baseYPositions[i] - totalDistanceMoved + symbolHeight * 2, symbolHeight * 4) - symbolHeight * 2;
+            Vector3 pos = symbol.localPosition;
+            pos.y = wrappedY;
+            symbol.localPosition = pos;
+            i++;
         }
 
-        if(Time.time >= stopTime)
+        if (Time.time >= stopTime)
             checkForTarget();
     }
 
@@ -42,16 +52,19 @@ public class SlotReel : MonoBehaviour
     {
         Transform Target = transform.GetChild(targetSymbol);
 
-        // Check if the target is at the center
         if (Mathf.Abs(Target.localPosition.y) < speed * Time.deltaTime)
         {
-            // Align it perfectly
-            Vector3 position = Target.localPosition;
-            position.y = 0f;
-            Target.localPosition = position;
+            float correction = -Target.localPosition.y; // however far off the target actually was
 
-            spinning = false;                                                //stops the spinning if the target is reached
-            OnStopped?.Invoke();                                             //tells the slot machine that the spinning has stopped and the button can be pressed again
+            foreach (Transform symbol in transform)
+            {
+                Vector3 pos = symbol.localPosition;
+                pos.y += correction;
+                symbol.localPosition = pos;
+            }
+
+            spinning = false;
+            OnStopped?.Invoke();
         }
     }
     public void Spin()                          //starts the spinning of the reel and it wired with the button
@@ -61,6 +74,5 @@ public class SlotReel : MonoBehaviour
         spinning = true;
         stopTime = Time.time + spinTime;
         targetSymbol = SlotRandomNumberGenerator.range(0, transform.childCount);          //randomly selects a symbol to stop at, the number of symbools can be increased by adding more children to the parent object 
-        Debug.Log($"childCount={transform.childCount}, targetSymbol={targetSymbol}");
     }
 }

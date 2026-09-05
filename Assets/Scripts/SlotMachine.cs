@@ -8,16 +8,16 @@ public class SlotMachine : MonoBehaviour           //Serves as the UI manager As
     public TMP_Text totalPoints;
     public TMP_Text betText;
     public TMP_Text winText;
+    public TMP_Text wonAmountText;
 
     [Header("UI BUttons")]
     public Button spinButton;
     public Button[] allUIbuttons;
 
-
-
     public int totalPointsValue = 1000;
     public int betPointsValue;
     public int timesWon;
+    public int wonAmountValue;
 
     [Header("Reels")]
     public SlotReel reel1;
@@ -34,8 +34,7 @@ public class SlotMachine : MonoBehaviour           //Serves as the UI manager As
         betText.text = betPointsValue.ToString();
         reel3.OnStopped += reEnableSpin;
         reel3.OnStopped += checkWin;
-        //spinButton.interactable = false;
-        winText.text = "Win: \n" + timesWon.ToString();
+        wonAmountText.text = "Won $: \n" + wonAmountValue.ToString();
     }
 
 
@@ -48,19 +47,8 @@ public class SlotMachine : MonoBehaviour           //Serves as the UI manager As
         reel1.Spin();
         reel2.Spin();
         reel3.Spin();
-        //spinButton.interactable = false;
         totalPointsValue -= betPointsValue;
         totalPoints.text = totalPointsValue.ToString();
-        //if (reel1.targetSymbol == reel2.targetSymbol && reel2.targetSymbol == reel3.targetSymbol)
-        //{
-        //    totalPointsValue += betPointsValue * jackpotMultiplier[reel1.targetSymbol];
-        //    timesWon++;
-        //    winText.text = "Win: \n" + timesWon.ToString();
-        //    //if (reel1.targetSymbol != 7)
-        //    //    winText.text = "You won " + (betPointsValue * jackpotMultiplier[reel1.targetSymbol]).ToString() + " points!";
-        //    //else
-        //    //    winText.text = "You won the Jackpot!";
-        //}
     }
     void reEnableSpin()
     {
@@ -72,33 +60,34 @@ public class SlotMachine : MonoBehaviour           //Serves as the UI manager As
     }
     void checkWin()
     {
-        Debug.Log("checkWin fired");
         if (reel1.targetSymbol == reel2.targetSymbol && reel2.targetSymbol == reel3.targetSymbol)
         {
-            totalPointsValue += betPointsValue * jackpotMultiplier[reel1.targetSymbol];
+            wonAmountValue = betPointsValue * jackpotMultiplier[reel1.targetSymbol];
+            totalPointsValue += wonAmountValue;
             totalPoints.text = totalPointsValue.ToString();
             timesWon++;
-            winText.text = "Win: \n" + timesWon.ToString();
+            winText.text = "WINS: \n" + timesWon.ToString();
         }
+        else
+        {
+            wonAmountValue = 0;
+        }
+        wonAmountText.text = "Won $: \n" + wonAmountValue.ToString();
     }
     public void IncreaseBet()
     {
         if(totalPointsValue > betPointsValue)
         {
-            //totalPointsValue -= 10;
             betPointsValue += 10;
             betText.text = betPointsValue.ToString();
-            //totalPoints.text = totalPointsValue.ToString();
         }
     }
     public void DecreaseBet()
     {
         if(betPointsValue > 0)
         {
-            //totalPointsValue += 10;
             betPointsValue -= 10;
             betText.text = betPointsValue.ToString();
-            //totalPoints.text = totalPointsValue.ToString();
         }
     }
 }
