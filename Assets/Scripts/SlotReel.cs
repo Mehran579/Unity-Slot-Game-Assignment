@@ -7,7 +7,9 @@ public class SlotReel : MonoBehaviour
     private float symbolHeight = 1.6f;
 
     [Tooltip("The symbol index to stop on")]
-    [SerializeField] private int targetSymbol;
+    //[SerializeField] private int targetSymbol;
+    public int targetSymbol { get; private set; }
+
 
     [Tooltip("The time for which the reel spins before checking the symbol to stop at")]
     public float spinTime = 3f;
@@ -59,5 +61,6 @@ public class SlotReel : MonoBehaviour
         spinning = true;
         stopTime = Time.time + spinTime;
         targetSymbol = SlotRandomNumberGenerator.range(0, transform.childCount);          //randomly selects a symbol to stop at, the number of symbools can be increased by adding more children to the parent object 
+        Debug.Log($"childCount={transform.childCount}, targetSymbol={targetSymbol}");
     }
 }
