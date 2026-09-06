@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SlotReel : MonoBehaviour
+public class SlotReel : MonoBehaviour                //RECIEVED BY ALL 3 REELS , CONTAINS THE CORE LOGIC BEHIND SPINNING AND THE TARGET SYMBOL
 {
     [Tooltip("Rotation speed of the reel")]
     public float speed = 5f;
@@ -36,9 +36,9 @@ public class SlotReel : MonoBehaviour
 
         int i = 0;
         foreach (Transform symbol in transform)
-        {
-            float wrappedY = Mathf.Repeat(baseYPositions[i] - totalDistanceMoved + symbolHeight * 2, symbolHeight * 4) - symbolHeight * 2;
-            Vector3 pos = symbol.localPosition;
+        {   
+            float wrappedY = Mathf.Repeat(baseYPositions[i] - totalDistanceMoved + symbolHeight * 2, symbolHeight * 4) - symbolHeight * 2;            //wraps the symbols around the reel so that they can be reused
+            Vector3 pos = symbol.localPosition;    
             pos.y = wrappedY;
             symbol.localPosition = pos;
             i++;
@@ -65,6 +65,7 @@ public class SlotReel : MonoBehaviour
 
             spinning = false;
             OnStopped?.Invoke();
+            SoundManager.instance.PlaySFX(SoundManager.instance.spinStopSound);
         }
     }
     public void Spin()                          //starts the spinning of the reel and it wired with the button
@@ -73,6 +74,6 @@ public class SlotReel : MonoBehaviour
             return;
         spinning = true;
         stopTime = Time.time + spinTime;
-        targetSymbol = SlotRandomNumberGenerator.range(0, transform.childCount);          //randomly selects a symbol to stop at, the number of symbools can be increased by adding more children to the parent object 
+        targetSymbol = SlotRandomNumberGenerator.range(0, transform.childCount);          //A randomly selects a symbol to stop at, the number of symbools can be increased by adding more children to the parent object 
     }
 }

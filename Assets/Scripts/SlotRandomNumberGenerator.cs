@@ -7,12 +7,12 @@ public static class SlotRandomNumberGenerator
     {
         if (min >= max)
         {
-            throw new ArgumentOutOfRangeException(nameof(max), "the minimum should be lower than the max");
+            throw new ArgumentOutOfRangeException(nameof(max), "the minimum should be lower than the max");          //if wrong range is given
         }
         byte[] randomNumber = new byte[4];
         using (var rng = RandomNumberGenerator.Create())
         {
-            rng.GetBytes(randomNumber);
+            rng.GetBytes(randomNumber);                                                   //get 4 diffrenet bytes of random data
         }
         int value = BitConverter.ToInt32(randomNumber, 0) & int.MaxValue;
         int range = max - min;
